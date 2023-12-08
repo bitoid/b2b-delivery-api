@@ -3,8 +3,7 @@ from django.utils import timezone
 
 class Client(models.Model):
     name = models.CharField(max_length=255)
-    representative_name = models.CharField(max_length=255)
-    representative_surname = models.CharField(max_length=255)
+    representative_full_name = models.CharField(max_length=255)
     email = models.EmailField()
     phone_number = models.CharField(max_length=50)
     addresses = models.TextField()
@@ -25,15 +24,18 @@ class Order(models.Model):
     YELLOW = 'YL'
     RED = 'RD'
     BLACK = 'BK'
+    DEFAULT = 'DF'
 
     ORDER_STATUS_CHOICES = [
-        (GREEN, 'Delivered'),
-        (YELLOW, 'Delivery Failed - Will Retry'),
-        (RED, 'Cannot be Delivered'),
-        (BLACK, 'Refund'),
+        (DEFAULT, 'DEFAULT'),
+        (GREEN, 'GREEN'),
+        (YELLOW, 'YELLOW'),
+        (RED, 'RED'),
+        (BLACK, 'BLACK'),
     ]
 
-    status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=GREEN)
+    status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=DEFAULT)
+    city = models.CharField(max_length=100)
     addressee_full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=50)
     address = models.CharField(max_length=255)
