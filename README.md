@@ -28,6 +28,13 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 ```
+6. Create superuser:
+username: admin
+password: admin
+
+```
+python manage.py createsuperuser
+```
 
 6. Start the Django development server:
 ```
