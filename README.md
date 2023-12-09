@@ -36,10 +36,10 @@ password: admin
 python manage.py createsuperuser
 ```
 
-6. Start the Django development server:
+7. Start the Django development server:
 ```
 python manage.py runserver
 ```
 
-7. Access the API at: 
+8. Access the API at: 
 `http://127.0.0.1:8000/api/`
