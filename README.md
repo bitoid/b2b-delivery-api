@@ -28,11 +28,18 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 ```
+6. Create superuser:
+username: admin
+password: admin
 
-6. Start the Django development server:
+```
+python manage.py createsuperuser
+```
+
+7. Start the Django development server:
 ```
 python manage.py runserver
 ```
 
-7. Access the API at: 
+8. Access the API at: 
 `http://127.0.0.1:8000/api/`
