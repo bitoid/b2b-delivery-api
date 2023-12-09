@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Client(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     representative_full_name = models.CharField(max_length=255)
     email = models.EmailField()
@@ -12,6 +14,7 @@ class Client(models.Model):
         return self.name
 
 class Courier(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=50)
     
