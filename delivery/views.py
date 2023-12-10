@@ -6,27 +6,27 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Client, Courier, Order
 from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
-from .permissions import IsAdminUserOrReadOnly, IsOwnerOrReadOnly
+from .permissions import IsSuperuser, IsClient, IsCourier
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly]
+    permission_classes = [IsSuperuser]
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly]
+    permission_classes = [IsSuperuser | IsClient]
 
 class CourierViewSet(viewsets.ModelViewSet):
     queryset = Courier.objects.all()
     serializer_class = CourierSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly]
+    permission_classes = [IsSuperuser | IsCourier]
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsSuperuser | IsClient | IsCourier]
 
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'client'):
