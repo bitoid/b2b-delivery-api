@@ -51,18 +51,18 @@ class LoginView(APIView):
             user_data = UserSerializer(user).data
 
             if user.is_superuser:
-                user_type = "admin"
                 user_data['profile'] = "Admin User"
+                user_data['user_type'] = "admin"
             elif hasattr(user, 'client'):
-                user_type = "client"
                 client_data = ClientSerializer(user.client).data
                 user_data['profile'] = client_data
+                user_data['user_type'] = "client"
             elif hasattr(user, 'courier'):
-                user_type = "courier"
                 courier_data = CourierSerializer(user.courier).data
                 user_data['profile'] = courier_data
+                user_data['user_type'] = "courier"
             else:
-                user_type = "unknown"
+                user_data['user_type'] = "unknown"
 
-            return Response({"token": token.key, "user_type": user_type, "user_data": user_data}, status=status.HTTP_200_OK)
+            return Response({"token": token.key, "user_data": user_data}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
