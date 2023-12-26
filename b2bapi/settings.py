@@ -13,9 +13,9 @@ SECRET_KEY = 'django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set on "True" if running locally
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -78,27 +78,27 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 
 # Work LOCALLY in POSTGRES
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'b2b_delivery_api',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres5261285',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd5ha31imh97q3k',
-        'USER': 'xcsxjgdstdwkko',
-        'PASSWORD': '201f5ccbb305c17c54c7dc06305ab75b969a9e46c93c6e0d4b388a7cbd8aea75',
-        'HOST': 'ec2-54-73-22-169.eu-west-1.compute.amazonaws.com',
+        'NAME': 'b2b_delivery_api',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres5261285',
+        'HOST': 'localhost',
         'PORT': '5432'
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'd5ha31imh97q3k',
+#         'USER': 'xcsxjgdstdwkko',
+#         'PASSWORD': '201f5ccbb305c17c54c7dc06305ab75b969a9e46c93c6e0d4b388a7cbd8aea75',
+#         'HOST': 'ec2-54-73-22-169.eu-west-1.compute.amazonaws.com',
+#         'PORT': '5432'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
