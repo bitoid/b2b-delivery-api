@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Client, Courier, Order
 from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
+from .permissions import IsSuperuser, IsOwnerOrReadOnly
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -22,25 +23,21 @@ class CourierViewSet(viewsets.ModelViewSet):
     serializer_class = CourierSerializer
     permission_classes = [permissions.IsAdminUser]
 
-# class ClientViewSet(viewsets.ModelViewSet):
-#     queryset = Client.objects.all()
-#     serializer_class = ClientSerializer
-#     permission_classes = [IsSuperuser | IsClient]
-
-# class CourierViewSet(viewsets.ModelViewSet):
-#     queryset = Courier.objects.all()
-#     serializer_class = CourierSerializer
-#     permission_classes = [IsSuperuser | IsCourier]
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['list', 'create', 'retrieve']:
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [IsOwnerOrReadOnly | IsSuperuser]
+        return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'client'):
             serializer.save(client=self.request.user.client)
-              
+
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
