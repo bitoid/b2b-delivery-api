@@ -27,16 +27,30 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    # def get_permissions(self):
+    #     if self.action in ['list', 'create', 'retrieve']:
+    #         permission_classes = [permissions.IsAuthenticated]
+    #     else:
+    #         permission_classes = [IsOwnerOrReadOnly | IsSuperuser]
+    #     return [permission() for permission in permission_classes]
+
+    # def perform_create(self, serializer):
+    #     if hasattr(self.request.user, 'client'):
+    #         serializer.save(client=self.request.user.client)
+    
     def get_permissions(self):
+        if self.request.user.is_superuser:
+            return [permissions.IsAuthenticated()]
         if self.action in ['list', 'create', 'retrieve']:
-            permission_classes = [permissions.IsAuthenticated]
+            return [permissions.IsAuthenticated()]
         else:
-            permission_classes = [IsOwnerOrReadOnly | IsSuperuser]
-        return [permission() for permission in permission_classes]
+            return [IsOwnerOrReadOnly()]
 
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'client'):
             serializer.save(client=self.request.user.client)
+        elif self.request.user.is_superuser:
+            serializer.save()
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
