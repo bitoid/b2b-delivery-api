@@ -1,12 +1,14 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework import viewsets, permissions, status
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Client, Courier, Order
 from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
 from .permissions import IsSuperuser, IsOwnerOrReadOnly
+from .filters import OrderFilter
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -26,6 +28,8 @@ class CourierViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = OrderFilter
 
     def get_queryset(self):
         user = self.request.user
