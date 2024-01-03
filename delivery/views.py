@@ -27,17 +27,17 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-    # def get_permissions(self):
-    #     if self.action in ['list', 'create', 'retrieve']:
-    #         permission_classes = [permissions.IsAuthenticated]
-    #     else:
-    #         permission_classes = [IsOwnerOrReadOnly | IsSuperuser]
-    #     return [permission() for permission in permission_classes]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Order.objects.all()
+        elif hasattr(user, 'client'):
+            return Order.objects.filter(client=user.client)
+        elif hasattr(user, 'courier'):
+            return Order.objects.filter(courier=user.courier)
+        else:
+            return Order.objects.none()
 
-    # def perform_create(self, serializer):
-    #     if hasattr(self.request.user, 'client'):
-    #         serializer.save(client=self.request.user.client)
-    
     def get_permissions(self):
         if self.request.user.is_superuser:
             return [permissions.IsAuthenticated()]
