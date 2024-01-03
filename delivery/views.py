@@ -9,6 +9,8 @@ from .models import Client, Courier, Order
 from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
 from .permissions import IsSuperuser, IsOwnerOrReadOnly
 from .filters import OrderFilter
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -68,6 +70,24 @@ class OrderViewSet(viewsets.ModelViewSet):
             instance.save()
         else:
             serializer.save()
+
+    def destroy(self, request, *args, **kwargs):
+        order = get_object_or_404(Order, pk=kwargs.get('pk'))
+        order.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(methods=['delete'], detail=False, url_path='delete-batch', permission_classes=[IsSuperuser])
+    def delete_batch(self, request, *args, **kwargs):
+
+        if not request.user.is_superuser:
+            return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+
+        order_ids = request.data.get('ids', [])
+        if not order_ids:
+            return Response({'detail': 'No order IDs provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        Order.objects.filter(id__in=order_ids).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
