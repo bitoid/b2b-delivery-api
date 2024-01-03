@@ -52,6 +52,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         elif self.request.user.is_superuser:
             serializer.save()
 
+    def perform_update(self, serializer):
+        if hasattr(self.request.user, 'courier'):
+            instance = serializer.instance
+            instance.comment = serializer.validated_data.get('comment', instance.comment)
+            instance.status = serializer.validated_data.get('status', instance.status)
+            instance.save()
+        else:
+            serializer.save()
+
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
