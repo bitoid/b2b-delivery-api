@@ -45,7 +45,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.request.user.is_superuser:
             return [permissions.IsAuthenticated()]
-        if self.action in ['list', 'create', 'retrieve']:
+
+
+        if self.action == 'destroy':
+            return [IsSuperuser()]
+        elif self.action in ['list', 'create', 'retrieve']:
             return [permissions.IsAuthenticated()]
         else:
             return [IsOwnerOrReadOnly()]
