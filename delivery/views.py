@@ -96,21 +96,38 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user:
             token, created = Token.objects.get_or_create(user=user)
-            user_data = UserSerializer(user).data
+
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'is_staff': user.is_staff,
+                'user_type': 'admin' if user.is_superuser else 'client' if hasattr(user, 'client') else 'courier' if hasattr(user, 'courier') else 'unknown'
+            }
 
             if user.is_superuser:
-                user_data['profile'] = "Admin User"
-                user_data['user_type'] = "admin"
+                user_data['profile'] = {
+                    'name': "Admin User",
+                    'email': user.email
+                }
             elif hasattr(user, 'client'):
-                client_data = ClientSerializer(user.client).data
-                user_data['profile'] = client_data
-                user_data['user_type'] = "client"
+                client = user.client
+                user_data['profile'] = {
+                    'id': client.id,
+                    'name': client.name,
+                    'representative_full_name': client.representative_full_name,
+                    'email': client.email,
+                    'phone_number': client.phone_number,
+                    'addresses': client.addresses
+                }
             elif hasattr(user, 'courier'):
-                courier_data = CourierSerializer(user.courier).data
-                user_data['profile'] = courier_data
-                user_data['user_type'] = "courier"
-            else:
-                user_data['user_type'] = "unknown"
+                courier = user.courier
+                user_data['profile'] = {
+                    'id': courier.id,
+                    'name': courier.name,
+                    'email': user.email,
+                    'phone_number': courier.phone_number
+                }
 
             return Response({"token": token.key, "user_data": user_data}, status=status.HTTP_200_OK)
+        
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
