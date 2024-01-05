@@ -22,3 +22,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if hasattr(request.user, 'courier') and obj.courier.user == request.user:
             return True
         return False
+    
+
+class IsClientOrSuperuser(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user and request.user.is_superuser:
+            return True
+        return hasattr(request.user, 'client')

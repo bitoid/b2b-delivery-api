@@ -7,10 +7,14 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Client, Courier, Order
 from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
-from .permissions import IsSuperuser, IsOwnerOrReadOnly
+from .permissions import IsSuperuser, IsOwnerOrReadOnly, IsClientOrSuperuser
 from .filters import OrderFilter
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
+from django.db import transaction
+
+from openpyxl import load_workbook
+from io import BytesIO
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -131,3 +135,40 @@ class LoginView(APIView):
             return Response({"token": token.key, "user_data": user_data}, status=status.HTTP_200_OK)
         
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ExcelUploadView(APIView):
+    permission_classes = [IsClientOrSuperuser, permissions.IsAuthenticated]
+
+
+    def post(self, request, *args, **kwargs):
+        excel_file = request.FILES.get('file')
+
+        if not excel_file.name.endswith('.xlsx'):
+            return Response({"error": "File is not Excel"}, status=status.HTTP_400_BAD_REQUEST)
+
+        workbook = load_workbook(filename=BytesIO(excel_file.read()))
+        sheet = workbook.active
+        with transaction.atomic():
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                client = request.user.client if not request.user.is_superuser else Client.objects.get(pk=row[8])
+
+                order_data = {
+                    'city': row[0],
+                    'addressee_full_name': row[1],
+                    'phone_number': row[2],
+                    'address': row[3],
+                    'comment': row[4],
+                    'item_price': row[5],
+                    'courier_fee': row[6],
+                    'sum': row[7],
+                    'client': client.pk,
+                }
+
+                serializer = OrderSerializer(data=order_data)
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"success": "File processed successfully"}, status=status.HTTP_201_CREATED)
