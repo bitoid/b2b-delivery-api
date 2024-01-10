@@ -93,10 +93,10 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'deio39mukbden8',
-        'USER': 'tkkrbvtzquiwco',
-        'PASSWORD': '2526e0f78a5486feb5f01a33fa60470998475dac5fe63cd97d49553721e236e0',
-        'HOST': 'ec2-34-241-82-91.eu-west-1.compute.amazonaws.com',
+        'NAME': 'df3a0dpdk6kjds',
+        'USER': 'rlaijacywiipif',
+        'PASSWORD': 'abc6774e54826ff8578c25e35dd79d67e744e97ede3f17cfb28cc1511db45748',
+        'HOST': 'ec2-54-220-218-59.eu-west-1.compute.amazonaws.com',
         'PORT': '5432'
     }
 }
