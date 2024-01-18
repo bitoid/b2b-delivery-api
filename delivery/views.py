@@ -136,10 +136,8 @@ class LoginView(APIView):
         
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
     
-
 class ExcelUploadView(APIView):
     permission_classes = [IsClientOrSuperuser, permissions.IsAuthenticated]
-
 
     def post(self, request, *args, **kwargs):
         excel_file = request.FILES.get('file')
@@ -151,7 +149,10 @@ class ExcelUploadView(APIView):
         sheet = workbook.active
         with transaction.atomic():
             for row in sheet.iter_rows(min_row=2, values_only=True):
-                client = request.user.client if not request.user.is_superuser else Client.objects.get(pk=row[8])
+                if request.user.is_superuser:
+                    client = None
+                else:
+                    client = request.user.client
 
                 order_data = {
                     'city': row[0],
@@ -162,7 +163,7 @@ class ExcelUploadView(APIView):
                     'item_price': row[5],
                     'courier_fee': row[6],
                     'sum': row[7],
-                    'client': client.pk,
+                    'client': client.pk if client else None,
                 }
 
                 serializer = OrderSerializer(data=order_data)

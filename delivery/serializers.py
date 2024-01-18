@@ -45,6 +45,13 @@ class CourierSerializer(serializers.ModelSerializer):
         return courier
 
 class OrderSerializer(serializers.ModelSerializer):
+    client_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = '__all__'
+
+    def get_client_name(self, obj):
+        if obj.client:
+            return obj.client.name
+        return None

@@ -47,7 +47,7 @@ class Order(models.Model):
     item_price = models.DecimalField(max_digits=10, decimal_places=2)
     courier_fee = models.DecimalField(max_digits=10, decimal_places=2)
     sum = models.DecimalField(max_digits=10, decimal_places=2)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     courier = models.ForeignKey(Courier, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_orders')
