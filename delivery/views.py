@@ -5,9 +5,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import Client, Courier, Order
-from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer
-from .permissions import IsSuperuser, IsOwnerOrReadOnly, IsClientOrSuperuser
+from .models import Client, Courier, Order, OrderStatusChangeRequest
+from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer, OrderStatusChangeRequestSerializer
+from .permissions import IsSuperuser, IsOwnerOrReadOnly, IsClientOrSuperuser, IsAdminUser, IsCourierForPostOnly
 from .filters import OrderFilter
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -52,7 +52,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         if self.request.user.is_superuser:
             return [permissions.IsAuthenticated()]
 
-
         if self.action == 'destroy':
             return [IsSuperuser()]
         elif self.action in ['list', 'create', 'retrieve']:
@@ -67,13 +66,32 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer.save()
 
     def perform_update(self, serializer):
-        if hasattr(self.request.user, 'courier'):
+        user = self.request.user
+        restricted_fields = ['item_price', 'courier_fee', 'sum','status']
+
+        if hasattr(user, 'client'):
+            for field in restricted_fields:
+                if field in serializer.validated_data:
+                    serializer.validated_data.pop(field, None)
+
+        if hasattr(user, 'courier'):
             instance = serializer.instance
-            instance.comment = serializer.validated_data.get('comment', instance.comment)
-            instance.status = serializer.validated_data.get('status', instance.status)
-            instance.save()
-        else:
-            serializer.save()
+            updated_comment = serializer.validated_data.get('comment', instance.comment)
+            requested_status = serializer.validated_data.get('status', instance.status)
+
+            instance.comment = updated_comment
+
+            if instance.status != requested_status:
+                OrderStatusChangeRequest.objects.create(
+                    order=instance,
+                    requested_status=requested_status,
+                    requester=user
+                )
+            else:
+                instance.save()
+            return
+
+        super().perform_update(serializer)
 
     def destroy(self, request, *args, **kwargs):
         order = get_object_or_404(Order, pk=kwargs.get('pk'))
@@ -92,6 +110,32 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         Order.objects.filter(id__in=order_ids).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class OrderStatusChangeRequestViewSet(viewsets.ModelViewSet):
+    queryset = OrderStatusChangeRequest.objects.all()
+    serializer_class = OrderStatusChangeRequestSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            # Allow couriers to make POST requests
+            permission_classes = [IsCourierForPostOnly]
+        else:
+            # Allow only superusers to access for any other actions
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+
+    def get_queryset(self):
+        user = self.request.user
+        return OrderStatusChangeRequest.objects.all()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        if instance.is_approved:
+            order = instance.order
+            order.status = instance.requested_status
+            order.save()
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):

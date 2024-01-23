@@ -51,3 +51,15 @@ class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     courier = models.ForeignKey(Courier, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_orders')
+
+
+
+
+class OrderStatusChangeRequest(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='status_change_requests')
+    requested_status = models.CharField(max_length=2, choices=Order.ORDER_STATUS_CHOICES)
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='status_requests')
+    is_approved = models.BooleanField(default=False, null=True)
+
+    def __str__(self):
+        return f"სტატუსის ცვილელბა შეკვეთა N= {self.order.id} - {self.requested_status}-ში"

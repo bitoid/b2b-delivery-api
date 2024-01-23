@@ -17,6 +17,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
 
+# work locally:
+# ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com', '127.0.0.1']
+
 
 # Application definition
 
@@ -154,6 +157,8 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
 

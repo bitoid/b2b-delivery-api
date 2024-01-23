@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Client, Courier, Order
+from .models import Client, Courier, Order, OrderStatusChangeRequest
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
@@ -43,6 +43,12 @@ class CourierSerializer(serializers.ModelSerializer):
         user = UserSerializer.create(UserSerializer(), validated_data=user_data)
         courier = Courier.objects.create(user=user, **validated_data)
         return courier
+
+
+class OrderStatusChangeRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderStatusChangeRequest
+        fields = '__all__'
 
 class OrderSerializer(serializers.ModelSerializer):
     client_name = serializers.SerializerMethodField()
