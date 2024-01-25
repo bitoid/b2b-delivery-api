@@ -84,6 +84,18 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'b2b_delivery_api',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres5261285',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

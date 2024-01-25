@@ -12,6 +12,8 @@ from .filters import OrderFilter
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from rest_framework.filters import OrderingFilter
+
 
 from openpyxl import load_workbook
 from io import BytesIO
@@ -34,8 +36,9 @@ class CourierViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = OrderFilter
+    ordering_fields = '__all__'
 
     def get_queryset(self):
         user = self.request.user
