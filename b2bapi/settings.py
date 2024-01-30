@@ -88,30 +88,6 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'b2b_delivery_api',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres5261285',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'd96qiaf39kkkhj',
-#         'USER': 'wgxljfvrrwxjbr',
-#         'PASSWORD': 'c2ecd5df862cb00e3f0863d9b1f9bd58576912bc7ec19e1b4238b14fd6e921d7',
-#         'HOST': 'ec2-54-220-19-50.eu-west-1.compute.amazonaws.com',
-#         'PORT': '5432',
-#     }
-# }
-
-
 
 DATABASES = {
     'default': {
