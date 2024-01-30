@@ -1,8 +1,8 @@
 from pathlib import Path
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,11 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!"
+# SECRET_KEY = "django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!"
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set on "True" if running locally
-DEBUG = False
+# DEBUG = False
+
+DEBUG = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
 
@@ -96,14 +100,27 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'd96qiaf39kkkhj',
+#         'USER': 'wgxljfvrrwxjbr',
+#         'PASSWORD': 'c2ecd5df862cb00e3f0863d9b1f9bd58576912bc7ec19e1b4238b14fd6e921d7',
+#         'HOST': 'ec2-54-220-19-50.eu-west-1.compute.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
+
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd96qiaf39kkkhj',
-        'USER': 'wgxljfvrrwxjbr',
-        'PASSWORD': 'c2ecd5df862cb00e3f0863d9b1f9bd58576912bc7ec19e1b4238b14fd6e921d7',
-        'HOST': 'ec2-54-220-19-50.eu-west-1.compute.amazonaws.com',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
