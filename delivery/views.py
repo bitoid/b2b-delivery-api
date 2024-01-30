@@ -70,7 +70,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         user = self.request.user
-        restricted_fields = ['item_price', 'courier_fee', 'sum','status']
+        restricted_fields = ['item_price', 'courier_fee', 'sum','status', 'courier', 'client']
 
         if hasattr(user, 'client'):
             for field in restricted_fields:
