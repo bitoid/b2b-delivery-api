@@ -51,8 +51,10 @@ class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     courier = models.ForeignKey(Courier, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_orders')
+    order_position = models.IntegerField(default=0)
 
-
+    class Meta:
+        ordering = ['order_position']
 
 
 class OrderStatusChangeRequest(models.Model):

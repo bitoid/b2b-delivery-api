@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from rest_framework.filters import OrderingFilter
+from .utils import send_sms_via_smsoffice
 
 
 from openpyxl import load_workbook
@@ -113,6 +114,39 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         Order.objects.filter(id__in=order_ids).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
+    def set_order(self, request):
+        order_data = request.data.get('order')
+
+        if not order_data:
+            return Response({'detail': 'No order data provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for index, order_id in enumerate(order_data):
+                Order.objects.filter(id=order_id).update(order_position=index)
+
+        return Response({'detail': 'Order updated successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
+    def send_bulk_sms(self, request):
+        order_ids = request.data.get('order_ids')
+        message = request.data.get('message')
+        sender = request.data.get('sender')
+
+        if not order_ids or not message or not sender:
+            return Response({"detail": "Order IDs, message, and sender are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        orders = Order.objects.filter(id__in=order_ids).values_list('phone_number', flat=True)
+        destinations = ','.join(orders)
+        
+        response = send_sms_via_smsoffice(destinations, sender, message)
+        
+        if response and response.get("Success"):
+            return Response({"detail": "SMS sent successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Failed to send SMS", "response": response}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderStatusChangeRequestViewSet(viewsets.ModelViewSet):
     queryset = OrderStatusChangeRequest.objects.all()
