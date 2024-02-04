@@ -27,9 +27,3 @@ class IsClientOrSuperuser(permissions.BasePermission):
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_superuser
-
-class IsCourierForPostOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            return hasattr(request.user, 'courier')
-        return False

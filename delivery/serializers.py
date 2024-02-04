@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Client, Courier, Order, OrderStatusChangeRequest
+from .models import Client, Courier, Order, Notification
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
@@ -45,11 +45,6 @@ class CourierSerializer(serializers.ModelSerializer):
         return courier
 
 
-class OrderStatusChangeRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderStatusChangeRequest
-        fields = '__all__'
-
 class OrderSerializer(serializers.ModelSerializer):
     client_name = serializers.SerializerMethodField()
 
@@ -57,7 +52,21 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = '__all__'
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request_user = self.context['request'].user
+        if request_user.is_superuser or request_user == instance.courier.user:
+            ret['status'] = instance.status if instance.status_approved else 'Pending Approval'
+        else:
+            ret['status'] = instance.status if instance.status_approved else 'DF'
+        return ret
+
     def get_client_name(self, obj):
         if obj.client:
             return obj.client.name
         return None
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'

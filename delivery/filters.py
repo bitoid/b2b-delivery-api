@@ -2,6 +2,7 @@ from django_filters import rest_framework as filters
 from django_filters.filters import BaseInFilter, CharFilter, NumberFilter
 from .models import Order
 from django_filters.filters import Filter
+from datetime import datetime, timedelta
 
 class ListFilter(BaseInFilter, CharFilter):
     pass
@@ -15,10 +16,15 @@ class DateRangeFilter(filters.Filter):
         if value:
             dates = [v.strip() for v in value.split('to')]
             if len(dates) == 2:
-                start_date, end_date = dates
-                if start_date and end_date:
+                start_date_str, end_date_str = dates
+                if start_date_str and end_date_str:
+                    start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+                    end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+
+                    end_date += timedelta(days=1)
+
                     start_lookup = f'{self.field_name}__gte'
-                    end_lookup = f'{self.field_name}__lte'
+                    end_lookup = f'{self.field_name}__lt' 
                     return qs.filter(**{start_lookup: start_date, end_lookup: end_date})
         return qs
 

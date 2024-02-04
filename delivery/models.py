@@ -39,6 +39,8 @@ class Order(models.Model):
     ]
 
     status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default=DEFAULT)
+    staged_status = models.CharField(max_length=2, choices=ORDER_STATUS_CHOICES, default='DF', blank=True)
+    status_approved = models.BooleanField(default=False)
     city = models.CharField(max_length=100)
     addressee_full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=50)
@@ -57,11 +59,17 @@ class Order(models.Model):
         ordering = ['order_position']
 
 
-class OrderStatusChangeRequest(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='status_change_requests')
-    requested_status = models.CharField(max_length=2, choices=Order.ORDER_STATUS_CHOICES)
-    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='status_requests')
-    is_approved = models.BooleanField(default=False, null=True)
-
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('order_added', 'Order Added'),
+        ('order_updated', 'Order Updated'),
+        ('status_updated', 'Status Updated'),
+    ]
+    notification_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    is_read = models.BooleanField(default=False)
+    admin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='notifications')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
-        return f"სტატუსის ცვილელბა შეკვეთა N= {self.order.id} - {self.requested_status}-ში"
+        return f"{self.get_notification_type_display()} - Order ID: {self.order.id}"

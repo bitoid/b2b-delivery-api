@@ -5,15 +5,19 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import Client, Courier, Order, OrderStatusChangeRequest
-from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer, OrderStatusChangeRequestSerializer
-from .permissions import IsSuperuser, IsOwnerOrReadOnly, IsClientOrSuperuser, IsAdminUser, IsCourierForPostOnly
+from .models import Client, Courier, Order, Notification
+from rest_framework import serializers
+from .serializers import ClientSerializer, CourierSerializer, OrderSerializer, UserSerializer, NotificationSerializer
+from .permissions import IsSuperuser, IsOwnerOrReadOnly, IsClientOrSuperuser, IsAdminUser
 from .filters import OrderFilter
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from rest_framework.filters import OrderingFilter
 from .utils import send_sms_via_smsoffice
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 from openpyxl import load_workbook
@@ -71,37 +75,50 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         user = self.request.user
-        restricted_fields = ['item_price', 'courier_fee', 'sum','status', 'courier', 'client']
+        order = serializer.instance
 
-        if hasattr(user, 'client'):
+        if user.is_superuser:
+            pass
+        elif hasattr(user, 'client'):
+            restricted_fields = ['item_price', 'courier_fee', 'sum', 'status', 'courier', 'client', 'status_approved', 'staged_status',]
             for field in restricted_fields:
                 if field in serializer.validated_data:
                     serializer.validated_data.pop(field, None)
+        elif hasattr(user, 'courier'):
+            allowed_fields = ['comment', 'staged_status']
+            for field in list(serializer.validated_data):
+                if field not in allowed_fields:
+                    serializer.validated_data.pop(field, None)
 
-        if hasattr(user, 'courier'):
-            instance = serializer.instance
-            updated_comment = serializer.validated_data.get('comment', instance.comment)
-            requested_status = serializer.validated_data.get('status', instance.status)
+        if 'staged_status' in serializer.validated_data and order.status_approved:
+            raise serializers.ValidationError({"detail": "Cannot change staged status after it has been approved."})
 
-            instance.comment = updated_comment
-
-            if instance.status != requested_status:
-                OrderStatusChangeRequest.objects.create(
-                    order=instance,
-                    requested_status=requested_status,
-                    requester=user
-                )
-            else:
-                instance.save()
-            return
 
         super().perform_update(serializer)
+
+
 
     def destroy(self, request, *args, **kwargs):
         order = get_object_or_404(Order, pk=kwargs.get('pk'))
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve_status(self, request, pk=None):
+        order = self.get_object()
+        order.status = order.staged_status
+        order.status_approved = True
+        order.save()
+        return Response({"detail": "Order status approved."})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def disapprove_status(self, request, pk=None):
+        order = self.get_object()
+        order.staged_status = 'DF'
+        order.status_approved = False
+        order.save()
+        return Response({"detail": "Order status disapproved."})
+
     @action(methods=['delete'], detail=False, url_path='delete-batch', permission_classes=[IsSuperuser])
     def delete_batch(self, request, *args, **kwargs):
 
@@ -147,33 +164,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         else:
             return Response({"detail": "Failed to send SMS", "response": response}, status=status.HTTP_400_BAD_REQUEST)
 
-
-class OrderStatusChangeRequestViewSet(viewsets.ModelViewSet):
-    queryset = OrderStatusChangeRequest.objects.all()
-    serializer_class = OrderStatusChangeRequestSerializer
-
-    def get_permissions(self):
-        if self.action == 'create':
-            # Allow couriers to make POST requests
-            permission_classes = [IsCourierForPostOnly]
-        else:
-            # Allow only superusers to access for any other actions
-            permission_classes = [IsAdminUser]
-        return [permission() for permission in permission_classes]
-
-
-    def get_queryset(self):
-        user = self.request.user
-        return OrderStatusChangeRequest.objects.all()
-
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
-        instance = serializer.instance
-        if instance.is_approved:
-            order = instance.order
-            order.status = instance.requested_status
-            order.save()
-
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
@@ -216,7 +206,22 @@ class LoginView(APIView):
             return Response({"token": token.key, "user_data": user_data}, status=status.HTTP_200_OK)
         
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes=[IsSuperuser]
+
+    def get_queryset(self):
+        return Notification.objects.filter(admin_user=self.request.user).order_by('-created_at')
+
+    def update(self, request, *args, **kwargs):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save()
+        return Response({'status': 'notification marked as read'}, status=status.HTTP_200_OK)
+
+
 class ExcelUploadView(APIView):
     permission_classes = [IsClientOrSuperuser, permissions.IsAuthenticated]
 

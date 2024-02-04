@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from delivery.views import ClientViewSet, CourierViewSet, OrderStatusChangeRequestViewSet, OrderViewSet, UserViewSet, LoginView, ExcelUploadView
+from delivery.views import ClientViewSet, CourierViewSet, OrderViewSet, UserViewSet, LoginView, ExcelUploadView, NotificationViewSet
 from django.contrib import admin
 from .yasg import urlpatterns as doc_urls
 
@@ -9,7 +9,7 @@ router.register(r'users', UserViewSet)
 router.register(r'clients', ClientViewSet)
 router.register(r'couriers', CourierViewSet)
 router.register(r'orders', OrderViewSet)
-router.register(r'status-change-requests', OrderStatusChangeRequestViewSet)
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
