@@ -9,13 +9,6 @@ class ListFilter(BaseInFilter, CharFilter):
 class NumberInFilter(BaseInFilter, NumberFilter):
     pass
 
-class CustomOrderingFilter(Filter):
-    def filter(self, qs, value):
-        if value == 'ascend':
-            return qs.order_by('created_at')
-        elif value == 'descend':
-            return qs.order_by('-created_at')
-        return qs
 
 class DateRangeFilter(filters.Filter):
     def filter(self, qs, value):
@@ -54,15 +47,24 @@ class OrderFilter(filters.FilterSet):
     courier = NumberInFilter(field_name='courier__id')
     created_at = DateRangeFilter()
     item_price = RangeFilter()
-    order = CustomOrderingFilter(method='filter_order')
 
-    def filter_order(self, queryset, name, value):
-        if value == 'ascend':
-            return queryset.order_by('created_at')
-        elif value == 'descend':
-            return queryset.order_by('-created_at')
+    class Meta:
+        model = Order
+        fields = []
+
+    def filter_queryset(self, queryset):
+        queryset = super(OrderFilter, self).filter_queryset(queryset)
+        field = self.data.get('field', None)
+        order = self.data.get('order', None)
+
+        if field in ['created_at', 'item_price', 'courier_fee'] and order:
+            if order == 'ascend':
+                queryset = queryset.order_by(field)
+            elif order == 'descend':
+                queryset = queryset.order_by(f'-{field}')
         return queryset
 
     class Meta:
         model = Order
         fields = []
+
