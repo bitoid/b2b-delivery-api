@@ -1,13 +1,13 @@
 import requests
 from django.conf import settings
 
-def send_sms_via_smsoffice(destination, sender, message):
+def send_sms_via_smsoffice(destination):
     url = "https://smsoffice.ge/api/v2/send/"
     payload = {
         "key": settings.SMSOFFICE_API_KEY,
         "destination": destination,
-        "sender": sender,
-        "content": message,
+        "sender": "Deliverow",
+        "content": "თქვენთან მოემართება კურიერი!",
         "urgent": "true"
     }
     headers = {

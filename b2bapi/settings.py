@@ -131,7 +131,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-SMSOFFICE_API_KEY = '5fa7862e960748c89c2d338cbdb6c308'
+SMSOFFICE_API_KEY = os.getenv('SMSOFFICE_API_KEY'),
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

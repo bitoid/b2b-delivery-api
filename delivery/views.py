@@ -148,16 +148,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
     def send_bulk_sms(self, request):
         order_ids = request.data.get('order_ids')
-        message = request.data.get('message')
-        sender = request.data.get('sender')
 
-        if not order_ids or not message or not sender:
-            return Response({"detail": "Order IDs, message, and sender are required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not order_ids:
+            return Response({"detail": "Order IDs are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         orders = Order.objects.filter(id__in=order_ids).values_list('phone_number', flat=True)
         destinations = ','.join(orders)
         
-        response = send_sms_via_smsoffice(destinations, sender, message)
+        response = send_sms_via_smsoffice(destinations)
         
         if response and response.get("Success"):
             return Response({"detail": "SMS sent successfully."}, status=status.HTTP_200_OK)
