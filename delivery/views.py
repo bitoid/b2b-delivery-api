@@ -91,7 +91,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     serializer.validated_data.pop(field, None)
 
         if 'staged_status' in serializer.validated_data and order.status_approved:
-            raise serializers.ValidationError({"detail": "Cannot change staged status after it has been approved."})
+            raise serializers.ValidationError({"detail": "სტატუსი ვერ შეიცვლება მას შემდეგ, რაც დადასტურდა ადმინისტრატორის მიერ!"})
 
 
         super().perform_update(serializer)
@@ -109,7 +109,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.status = order.staged_status
         order.status_approved = True
         order.save()
-        return Response({"detail": "Order status approved."})
+        return Response({"detail": "შეკვეთის სტატუსი დადასტურდა!"})
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
     def disapprove_status(self, request, pk=None):
@@ -117,7 +117,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.staged_status = 'DF'
         order.status_approved = False
         order.save()
-        return Response({"detail": "Order status disapproved."})
+        return Response({"detail": "შეკვეთის სტატუსი არ დადასტურდა!"})
 
     @action(methods=['delete'], detail=False, url_path='delete-batch', permission_classes=[IsSuperuser])
     def delete_batch(self, request, *args, **kwargs):
@@ -143,14 +143,14 @@ class OrderViewSet(viewsets.ModelViewSet):
             for index, order_id in enumerate(order_data):
                 Order.objects.filter(id=order_id).update(order_position=index)
 
-        return Response({'detail': 'Order updated successfully'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'შეკვეთა წარმატებით განახლდა!'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
     def send_bulk_sms(self, request):
         order_ids = request.data.get('order_ids')
 
         if not order_ids:
-            return Response({"detail": "Order IDs are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "საჭიროა შეკვეთების კოდები!"}, status=status.HTTP_400_BAD_REQUEST)
 
         orders = Order.objects.filter(id__in=order_ids).values_list('phone_number', flat=True)
         destinations = ','.join(orders)
@@ -158,9 +158,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         response = send_sms_via_smsoffice(destinations)
         
         if response and response.get("Success"):
-            return Response({"detail": "SMS sent successfully."}, status=status.HTTP_200_OK)
+            return Response({"detail": "SMS წარმატებით გაიგზავნა."}, status=status.HTTP_200_OK)
         else:
-            return Response({"detail": "Failed to send SMS", "response": response}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "შეცდომა SMS გაგზავნისას", "response": response}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
@@ -203,7 +203,7 @@ class LoginView(APIView):
 
             return Response({"token": token.key, "user_data": user_data}, status=status.HTTP_200_OK)
         
-        return Response({"error": "Invalid Credentials"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "არასწორი მონაცემები!"}, status=status.HTTP_400_BAD_REQUEST)
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
@@ -217,7 +217,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notification = self.get_object()
         notification.is_read = True
         notification.save()
-        return Response({'status': 'notification marked as read'}, status=status.HTTP_200_OK)
+        return Response({'status': 'შეტყობინებები მონიშნულია როგორც წაკითხული'}, status=status.HTTP_200_OK)
 
 
 class ExcelUploadView(APIView):
@@ -227,7 +227,7 @@ class ExcelUploadView(APIView):
         excel_file = request.FILES.get('file')
 
         if not excel_file.name.endswith('.xlsx'):
-            return Response({"error": "File is not Excel"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "ფაილი არ არის ექსელის ფორმატში!"}, status=status.HTTP_400_BAD_REQUEST)
 
         workbook = load_workbook(filename=BytesIO(excel_file.read()))
         sheet = workbook.active
@@ -256,4 +256,4 @@ class ExcelUploadView(APIView):
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"success": "File processed successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"success": "ფაილი წარმატებით აიტვირთა!"}, status=status.HTTP_201_CREATED)
