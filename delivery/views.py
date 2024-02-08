@@ -176,7 +176,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         updated_orders_count = orders.update(courier_id=courier_id)
 
         return Response({
-            'detail': f'შეკვეთები: {updated_orders_count} წარმატებით გადაეცა კურიერს',
+            'detail': f'{updated_orders_count} შეკვეთა წარმატებით გადაეცა კურიერს',
             'assigned_orders_count': updated_orders_count
         }, status=status.HTTP_200_OK)
 
