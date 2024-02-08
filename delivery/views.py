@@ -103,7 +103,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    @action(detail=True, methods=['post'], permission_classes=[IsSuperuser])
     def approve_status(self, request, pk=None):
         order = self.get_object()
         order.status = order.staged_status
@@ -111,7 +111,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
         return Response({"detail": "შეკვეთის სტატუსი დადასტურდა!"})
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    @action(detail=True, methods=['post'], permission_classes=[IsSuperuser])
     def disapprove_status(self, request, pk=None):
         order = self.get_object()
         order.staged_status = 'DF'
@@ -161,6 +161,24 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"detail": "SMS წარმატებით გაიგზავნა."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "შეცდომა SMS გაგზავნისას", "response": response}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
+    def assign_courier(self, request, *args, **kwargs):
+        try:
+            courier_id = request.data.get('courier_id')
+            order_ids = request.data.get('order_ids', [])
+
+            if not Courier.objects.filter(id=courier_id).exists():
+                return Response({'detail': 'კურიერი არ არსებობს.'}, status=status.HTTP_404_NOT_FOUND)
+
+            orders = Order.objects.filter(id__in=order_ids)
+            
+            orders.update(courier_id=courier_id)
+
+            return Response({'detail': 'შეკვეთები წარმატებით გადაეცა კურიერს!'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
