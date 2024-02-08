@@ -165,20 +165,20 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsSuperuser])
     def assign_courier(self, request, *args, **kwargs):
-        try:
-            courier_id = request.data.get('courier_id')
-            order_ids = request.data.get('order_ids', [])
+        courier_id = request.data.get('courier_id')
+        order_ids = request.data.get('order_ids', [])
 
-            if not Courier.objects.filter(id=courier_id).exists():
-                return Response({'detail': 'კურიერი არ არსებობს.'}, status=status.HTTP_404_NOT_FOUND)
+        if not Courier.objects.filter(id=courier_id).exists():
+            return Response({'detail': 'კურიერი არ არსებობს.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        orders = Order.objects.filter(id__in=order_ids)
 
-            orders = Order.objects.filter(id__in=order_ids)
-            
-            orders.update(courier_id=courier_id)
+        updated_orders_count = orders.update(courier_id=courier_id)
 
-            return Response({'detail': 'შეკვეთები წარმატებით გადაეცა კურიერს!'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            'detail': f'შეკვეთები: {updated_orders_count} წარმატებით გადაეცა კურიერს',
+            'assigned_orders_count': updated_orders_count
+        }, status=status.HTTP_200_OK)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
