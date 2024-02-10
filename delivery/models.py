@@ -69,6 +69,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     admin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='notifications')
+    new_status = models.CharField(max_length=2, choices=Order.ORDER_STATUS_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
