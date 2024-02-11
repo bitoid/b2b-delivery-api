@@ -14,6 +14,9 @@ def order_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Order)
 def order_post_save(sender, instance, created, **kwargs):
+    if getattr(instance, '_action_by_admin', False):
+        return
+
     admin_users = User.objects.filter(is_superuser=True)
     if created:
         for admin in admin_users:
@@ -44,8 +47,9 @@ def order_post_save(sender, instance, created, **kwargs):
                 )
         else:
             for admin in admin_users:
-                Notification.objects.update_or_create(
+                Notification.objects.create(
                     notification_type='order_updated',
+                    admin_user=admin,
                     order=instance,
-                    defaults={'admin_user': admin, 'is_read': False}
+                    is_read=False
                 )

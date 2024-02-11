@@ -71,14 +71,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         if hasattr(self.request.user, 'client'):
             serializer.save(client=self.request.user.client)
         elif self.request.user.is_superuser:
-            serializer.save()
+            order = serializer.save()
+            order._action_by_admin = True
+            order.save()
 
     def perform_update(self, serializer):
         user = self.request.user
         order = serializer.instance
 
         if user.is_superuser:
-            pass
+            order._action_by_admin = True
+            order.save()
         elif hasattr(user, 'client'):
             restricted_fields = ['item_price', 'courier_fee', 'sum', 'status', 'courier', 'client', 'status_approved', 'staged_status',]
             for field in restricted_fields:
@@ -106,6 +109,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsSuperuser])
     def approve_status(self, request, pk=None):
         order = self.get_object()
+        order._action_by_admin = True
         order.status = order.staged_status
         order.status_approved = True
         order.save()
