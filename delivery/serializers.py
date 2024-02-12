@@ -20,10 +20,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ClientSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
-        fields = ['id', 'user', 'name', 'representative_full_name', 'phone_number', 'addresses']
+        fields = ['id', 'user', 'name', 'representative_full_name', 'phone_number', 'addresses', 'role']
+
+    def get_role(self, obj):
+        return "client"
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -33,10 +37,14 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class CourierSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Courier
         fields = '__all__'
+
+    def get_role(self, obj):
+        return "courier"
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
