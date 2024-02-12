@@ -260,12 +260,14 @@ class ExcelUploadView(APIView):
                 else:
                     client = request.user.client
 
+                comment = row[4] if row[4] else " "
+
                 order_data = {
                     'city': row[0],
                     'addressee_full_name': row[1],
                     'phone_number': row[2],
                     'address': row[3],
-                    'comment': row[4],
+                    'comment': comment,
                     'item_price': row[5],
                     'courier_fee': row[6],
                     'sum': row[7],
