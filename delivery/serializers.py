@@ -34,6 +34,24 @@ class ClientSerializer(serializers.ModelSerializer):
         user = UserSerializer.create(UserSerializer(), validated_data=user_data)
         client = Client.objects.create(user=user, **validated_data)
         return client
+    
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+
+            user_instance = instance.user
+            if 'username' in user_data:
+                user_instance.username = user_data.get('username', user_instance.username)
+            if 'email' in user_data:
+                user_instance.email = user_data.get('email', user_instance.email)
+
+            user_instance.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 class CourierSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -51,6 +69,22 @@ class CourierSerializer(serializers.ModelSerializer):
         user = UserSerializer.create(UserSerializer(), validated_data=user_data)
         courier = Courier.objects.create(user=user, **validated_data)
         return courier
+    
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            user_instance = instance.user
+            if 'username' in user_data:
+                user_instance.username = user_data.get('username', user_instance.username)
+            if 'email' in user_data:
+                user_instance.email = user_data.get('email', user_instance.email)
+            user_instance.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class OrderSerializer(serializers.ModelSerializer):

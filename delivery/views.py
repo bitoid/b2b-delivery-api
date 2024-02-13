@@ -184,6 +184,20 @@ class OrderViewSet(viewsets.ModelViewSet):
             'assigned_orders_count': updated_orders_count
         }, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['patch'], permission_classes=[IsSuperuser])
+    def update_status_manually(self, request, pk=None):
+        order = self.get_object()
+        new_status = request.data.get('status')
+
+        if not new_status:
+            return Response({'detail': 'Status is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        order.status = new_status
+        order.status_approved = True 
+        order.save()
+
+        return Response({'detail': 'Order status updated successfully.'}, status=status.HTTP_200_OK)
+
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
