@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from django_filters.filters import BaseInFilter, CharFilter, NumberFilter
+from django_filters.filters import BaseInFilter, CharFilter, NumberFilter, BooleanFilter
 from .models import Order
 from django_filters.filters import Filter
 from datetime import datetime, timedelta
@@ -44,6 +44,8 @@ class RangeFilter(filters.Filter):
 
 
 class OrderFilter(filters.FilterSet):
+    client_is_null = BooleanFilter(field_name='client', lookup_expr='isnull')
+    courier_is_null = BooleanFilter(field_name='courier', lookup_expr='isnull')
     address = ListFilter()
     addressee_full_name = ListFilter()
     city = ListFilter()
