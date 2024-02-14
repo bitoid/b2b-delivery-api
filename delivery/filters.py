@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from django_filters.filters import BaseInFilter, CharFilter, NumberFilter, BooleanFilter
+from django_filters.filters import BaseInFilter, CharFilter, NumberFilter
 from .models import Order
 from django_filters.filters import Filter
 from datetime import datetime, timedelta
@@ -7,9 +7,18 @@ from datetime import datetime, timedelta
 class ListFilter(BaseInFilter, CharFilter):
     pass
 
-class NumberInFilter(BaseInFilter, NumberFilter):
-    pass
-
+class NullableNumberInFilter(BaseInFilter, NumberFilter):
+    def filter(self, qs, value):
+        if value:
+            if 'null' in value:
+                value.remove('null')
+                qs = qs.filter(**{
+                    f"{self.field_name}__isnull": True
+                })
+            if value:
+                qs = super().filter(qs, value)
+        return qs
+    
 
 class DateRangeFilter(filters.Filter):
     def filter(self, qs, value):
@@ -44,15 +53,13 @@ class RangeFilter(filters.Filter):
 
 
 class OrderFilter(filters.FilterSet):
-    client_is_null = BooleanFilter(field_name='client', lookup_expr='isnull')
-    courier_is_null = BooleanFilter(field_name='courier', lookup_expr='isnull')
     address = ListFilter()
     addressee_full_name = ListFilter()
     city = ListFilter()
     phone_number = ListFilter()
     status = ListFilter()
-    client = NumberInFilter(field_name='client__id')
-    courier = NumberInFilter(field_name='courier__id')
+    client = NullableNumberInFilter(field_name='client__id')
+    courier = NullableNumberInFilter(field_name='courier__id')
     created_at = DateRangeFilter()
     item_price = RangeFilter()
 
