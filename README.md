@@ -1,45 +1,36 @@
 # b2b-delivery-api
 
-### Setup
-1. Clone the repository:
+## Getting Started
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Installing
+
+1. **Clone the Repository**
+
 ```bash
-git clone https://github.com/yourusername/b2bapi.git
+git clone https://github.com/bitoid/b2b-delivery-api/
+cd b2b-delivery-api
+```
+2. **Environment Configuration**
+
+- Copy the `.env.example` file to a new file named `.env` and edit it to include your specific configurations:
+
+```bash
+cp .env.example .env
+```
+- You also have to copy `.env.db.example` to a new file named `.env.db` and edit it to include your specific configurations:
+```bash
+cp .env.db.example .env.db
 ```
 
-2. Navigate to the project directory:
-```
-cd b2bapi
-```
-
-3. Create and activate virtual environment:
-
-```
-python -m venv venv
-venv\Scripts\activate
+3. **Build and Run the Docker Containers**
+```bash
+docker-compose up --build
 ```
 
-4. Install the requirements:
-```
-pip install -r requirements.txt
-```
-
-5. Run migrations:
-```
-python manage.py makemigrations
-python manage.py migrate
-```
-6. Create superuser:
-username: admin
-password: admin
-
-```
-python manage.py createsuperuser
-```
-
-7. Start the Django development server:
-```
-python manage.py runserver
-```
-
-8. Access the API at: 
-`http://127.0.0.1:8000/api/`
+4. Accessing the Application
+Once the containers are up and running, you can access the web application by navigating to `http://localhost:1337` in your web browser (adjust the port according to your configuration).
