@@ -1,8 +1,8 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,18 +14,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 #SECRET_KEY = "django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!"
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set on "True" if running locally
 #DEBUG = True
 
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
+#ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
 
 # work locally:
-#ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -89,17 +89,28 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -131,8 +142,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-SMSOFFICE_API_KEY = os.getenv('SMSOFFICE_API_KEY'),
+SMSOFFICE_API_KEY = os.environ.get('SMSOFFICE_API_KEY')
+# SMSOFFICE_API_KEY = os.getenv('SMSOFFICE_API_KEY'),
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
