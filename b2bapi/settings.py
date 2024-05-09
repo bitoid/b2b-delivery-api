@@ -12,15 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = "django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!"
+SECRET_KEY = "django-insecure-1!=)h1($ua5+kckdefo%i%qgdj^8dmsyi)@2=e$1(fmrbo42f!"
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+#SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set on "True" if running locally
-#DEBUG = True
+DEBUG = False
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+#DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 #ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
 
@@ -101,16 +101,28 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT', '5432'),
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': 'damok8nqnti1rn',
+        'USER': 'adlqquxibsxiei',
+        'PASSWORD': 'd5bd455dafb2b4bce1f4041ca92acaba1dd65f6eac881a6b5525cb70487259dc',
+        'HOST': 'ec2-52-51-248-250.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -142,8 +154,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-SMSOFFICE_API_KEY = os.environ.get('SMSOFFICE_API_KEY')
-# SMSOFFICE_API_KEY = os.getenv('SMSOFFICE_API_KEY'),
+#SMSOFFICE_API_KEY = os.environ.get('SMSOFFICE_API_KEY')
+SMSOFFICE_API_KEY = '558356a0bd0543c29b3732d18e090aae'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
