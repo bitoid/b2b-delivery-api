@@ -19,7 +19,7 @@ SECRET_KEY = 'djangosupersecretkegdofkkfddfgfdg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set on "True" if running locally
-DEBUG = False
+DEBUG = True
 
 #DEBUG = bool(os.environ.get("DEBUG", default=0))
 
