@@ -25,7 +25,7 @@ DEBUG = bool(os.environ.get("DEBUG", default=0))
 #ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com']
 
 # work locally:
-ALLOWED_HOSTS = ['localhost', 'b2bapi-73c651c12de9.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', 'b2bapi-9f460d7654cd.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
