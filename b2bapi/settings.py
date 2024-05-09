@@ -82,12 +82,12 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # DATABASES = {
@@ -113,16 +113,16 @@ WSGI_APPLICATION = 'b2bapi.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'damok8nqnti1rn',
-        'USER': 'adlqquxibsxiei',
-        'PASSWORD': 'd5bd455dafb2b4bce1f4041ca92acaba1dd65f6eac881a6b5525cb70487259dc',
-        'HOST': 'ec2-52-51-248-250.eu-west-1.compute.amazonaws.com',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'damok8nqnti1rn',
+#         'USER': 'adlqquxibsxiei',
+#         'PASSWORD': 'd5bd455dafb2b4bce1f4041ca92acaba1dd65f6eac881a6b5525cb70487259dc',
+#         'HOST': 'ec2-52-51-248-250.eu-west-1.compute.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
