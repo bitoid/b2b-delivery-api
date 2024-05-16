@@ -1,4 +1,4 @@
-# b2b-delivery-api - deliverow
+# b2b-delivery-api
 
 ## Getting Started
 
